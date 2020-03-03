@@ -3,6 +3,9 @@ const express = require('express');
 
 const app = express();
 
+// MIDDLEWARE
+app.use(express.json());
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}...`);
@@ -20,3 +23,5 @@ app.get('/api/v1/tours', (req, res) => {
     data: { tours }
   });
 });
+
+app.post('/api/v1/tours', (req, res) => {});
