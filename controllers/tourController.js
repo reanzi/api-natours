@@ -6,6 +6,31 @@ const tours = JSON.parse(
 );
 const router = express.Router();
 
+// Middleware to check id
+exports.checkId = (req, res, next, val) => {
+  console.log(`Tour id is: ${val}`);
+  if (val > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'No Resources found'
+    });
+  }
+  next();
+};
+
+// Middleware to check body content
+exports.checkBody = (req, res, next) => {
+  // console.log(req.body);
+  let { name, regPrice } = req.body;
+  if (name || regPrice !== '') {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Please fill all required fields marked *'
+    });
+  }
+  next();
+};
+
 /**
  *
  * @param {*} TOURS RESOURCE
@@ -27,12 +52,6 @@ exports.getAllTours = (req, res) => {
 exports.getTour = (req, res) => {
   const id = req.params.id * 1;
   const tour = tours.find(el => el.id === id);
-  if (!tour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid Id'
-    });
-  }
   res.status(200).json({
     status: 'success',
     data: { tour }
@@ -62,12 +81,6 @@ exports.createTour = (req, res) => {
 // @router  PATCH /api/v1/tours/:id
 // @access  Private
 exports.updateTour = (req, res) => {
-  if (req.params.id * 1 > tours.length) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid Id'
-    });
-  }
   res.status(200).json({
     status: 'success',
     data: { tour: '<Updated Tour>' }
@@ -78,12 +91,6 @@ exports.updateTour = (req, res) => {
 // @access  Private
 exports.deleteTour = (req, res) => {
   console.log(req.requestTime);
-  if (req.params.id * 1 > tours.length) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid Id'
-    });
-  }
   res.status(204).json({
     status: 'success',
     data: null

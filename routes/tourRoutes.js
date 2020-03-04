@@ -1,17 +1,23 @@
 const express = require('express');
-const router = express.Router();
 const {
   getAllTours,
   getTour,
   createTour,
   updateTour,
-  deleteTour
+  deleteTour,
+  checkId,
+  checkBody
 } = require('../controllers/tourController');
+
+const router = express.Router();
+
+//Middleware runs only in tour routes
+router.param('id', checkId);
 
 router
   .route('/')
   .get(getAllTours)
-  .post(createTour);
+  .post(checkBody, createTour);
 
 router
   .route('/:id')
