@@ -16,6 +16,9 @@ const tours = JSON.parse(
 );
 
 // Routing
+// desc      Get all tours
+// @router  GET /api/v1/tours
+// @access  Public
 app.get('/api/v1/tours', (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -23,9 +26,28 @@ app.get('/api/v1/tours', (req, res) => {
     data: { tours }
   });
 });
+// desc      Get Single tours
+// @router  GET /api/v1/tours/:id
+// @access  Public
+app.get('/api/v1/tours/:id', (req, res) => {
+  const id = req.params.id * 1;
+  const tour = tours.find(el => el.id === id);
+  if (!tour) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid Id'
+    });
+  }
+  res.status(200).json({
+    status: 'success',
+    data: { tour }
+  });
+});
 
+// desc      Create a tour
+// @router  POST /api/v1/tours
+// @access  Private
 app.post('/api/v1/tours', (req, res) => {
-  //   console.log(req.body); // in the server console
   const newId = tours[tours.length - 1].id + 1;
   const newTour = Object.assign({ id: newId }, req.body);
   tours.push(newTour);
@@ -41,4 +63,36 @@ app.post('/api/v1/tours', (req, res) => {
       });
     }
   );
+});
+
+// desc      Update Tour
+// @router  PATCH /api/v1/tours/:id
+// @access  Private
+app.patch('/api/v1/tours/:id', (req, res) => {
+  if (req.params.id * 1 > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid Id'
+    });
+  }
+  res.status(200).json({
+    status: 'success',
+    data: { tour: '<Updated Tour>' }
+  });
+});
+
+// desc      Delete Tour
+// @router  DELETE /api/v1/tours/:id
+// @access  Private
+app.delete('/api/v1/tours/:id', (req, res) => {
+  if (req.params.id * 1 > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid Id'
+    });
+  }
+  res.status(204).json({
+    status: 'success',
+    data: null
+  });
 });
