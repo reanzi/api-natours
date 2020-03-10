@@ -1,32 +1,28 @@
 const express = require('express');
-const {
-  getAllTours,
-  getTourStats,
-  getTour,
-  createTour,
-  updateTour,
-  deleteTour,
-  topTours,
-  popularTours
-} = require('../controllers/tourController');
+const tourController = require('../controllers/tourController');
 
 const router = express.Router();
 
 //Middleware runs only in tour routes
 // router.param('id', checkId);
-router.route('/tour-stats').get(getTourStats);
-router.route('/top-5-cheap').get(topTours, getAllTours);
-router.route('/top-5-popular').get(popularTours, getAllTours);
+router.route('/tour-stats').get(tourController.getTourStats);
+router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
+router
+  .route('/top-5-cheap')
+  .get(tourController.topTours, tourController.getAllTours);
+router
+  .route('/top-5-popular')
+  .get(tourController.popularTours, tourController.getAllTours);
 
 router
   .route('/')
-  .get(getAllTours)
-  .post(createTour);
+  .get(tourController.getAllTours)
+  .post(tourController.createTour);
 
 router
   .route('/:id')
-  .get(getTour)
-  .patch(updateTour)
-  .delete(deleteTour);
+  .get(tourController.getTour)
+  .patch(tourController.updateTour)
+  .delete(tourController.deleteTour);
 
 module.exports = router;
