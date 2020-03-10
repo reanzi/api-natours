@@ -1,6 +1,7 @@
 const express = require('express');
 const {
   getAllTours,
+  getTourStats,
   getTour,
   createTour,
   updateTour,
@@ -13,8 +14,9 @@ const router = express.Router();
 
 //Middleware runs only in tour routes
 // router.param('id', checkId);
-router.route('/top-5-cheap/').get(topTours, getAllTours);
-router.route('/top-5-popular/').get(popularTours, getAllTours);
+router.route('/tour-stats').get(getTourStats);
+router.route('/top-5-cheap').get(topTours, getAllTours);
+router.route('/top-5-popular').get(popularTours, getAllTours);
 
 router
   .route('/')
