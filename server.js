@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const app = require('./app');
-
+const mongoose = require('mongoose');
+// Load env variables
 dotenv.config({ path: `./config/config.env` }); // should be access first before everything
+const app = require('./app');
 
 // const cloudDb = process.env.MONGO_URL.replace('<PASSWORD>', process.env.DB_PWD);
 const localDb = process.env.MONGO_LOCAL;
