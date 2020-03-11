@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const validator = require('validator');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -7,7 +8,10 @@ const tourSchema = new mongoose.Schema(
       type: String,
       unique: true,
       trim: true,
-      required: [true, 'A tour must have a name']
+      required: [true, 'A tour must have a name'],
+      maxLength: [40, 'A tour must have less or equal to 40 characters'],
+      minLength: [40, 'A tour must have greater or equal to 10 characters']
+      // validate: [validator.isAlpha, 'A Tour name can not contain numbers']
     },
     slug: String,
     price: {
@@ -20,7 +24,11 @@ const tourSchema = new mongoose.Schema(
     },
     difficulty: {
       type: String,
-      required: [true, 'A tour must have a difficulty level']
+      required: [true, 'A tour must have a difficulty level'],
+      enum: {
+        values: ['easy', 'medium', 'difficult'],
+        message: 'Difficulty is either: easy, medium or difficult'
+      }
     },
     maxGroupSize: {
       type: Number,
@@ -28,13 +36,24 @@ const tourSchema = new mongoose.Schema(
     },
     ratingsAverage: {
       type: Number,
-      default: 4.5
+      default: 4.5,
+      min: [1, 'Rating must be above 1.0'],
+      max: [5, 'Rating must be less or equal to 5.0']
     },
     ratingsQuantity: {
       type: Number,
       default: 0
     },
-    priceDiscount: Number,
+    priceDiscount: {
+      type: Number,
+      validate: {
+        validator: function(val) {
+          //this only points to the current doc on New doc creation not on Updates
+          return val < this.price;
+        },
+        message: 'Discount price ({VALUE}) must be less than the actual price'
+      }
+    },
     summary: {
       type: String,
       trim: true,
@@ -109,7 +128,7 @@ tourSchema.post(/^find/, function(docs, next) {
 tourSchema.pre('aggregate', function(next) {
   // 'this' key word points to the current aggrigation object
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-  console.log(this);
+  // console.log(this);
   next();
 });
 
