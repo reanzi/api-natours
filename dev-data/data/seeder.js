@@ -5,15 +5,15 @@ const Tour = require('./../../models/tourModel');
 
 dotenv.config({ path: `../../config/config.env` }); // should be access first before everything
 
-// const cloudDb = process.env.MONGO_URL.replace('<PASSWORD>', process.env.DB_PWD);
-const localDb = process.env.MONGO_LOCAL;
+const cloudDb = process.env.MONGO_URL.replace('<PASSWORD>', process.env.DB_PWD);
+// const localDb = process.env.MONGO_LOCAL;
 
 /**
  * @Connection to the database
  */
 // console.log(localDb);
 mongoose
-  .connect(localDb, {
+  .connect(cloudDb, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useUnifiedTopology: true,
