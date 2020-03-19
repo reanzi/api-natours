@@ -1,9 +1,12 @@
-const express = require('express');
-const fs = require('fs');
+// const express = require('express');
 
-const users = JSON.parse(
-  fs.readFileSync(`${__dirname}/../dev-data/data/users.json`)
-);
+const fs = require('fs');
+const User = require('./../models/userModel');
+const asyncHandler = require('./../middleware/asyncHandler');
+
+// const users = JSON.parse(
+//   fs.readFileSync(`${__dirname}/../dev-data/data/users.json`)
+// );
 
 /**
  *
@@ -15,19 +18,21 @@ const users = JSON.parse(
  * @router  GET /api/v1/users
  * @access  Public
  */
-exports.getAllUsers = (req, res) => {
+exports.getAllUsers = asyncHandler(async (req, res, next) => {
+  const users = await User.find();
+  // SEND RESPONSE
   res.status(200).json({
     status: 'success',
     results: users.length,
     data: { users }
   });
-};
+});
 // desc      Get Single users
 // @router  GET /api/v1/users/:id
 // @access  Public
-exports.getUser = (req, res) => {
-  //   const id = req.params.id * 1;
-  const user = users.find(el => el._id === req.params.id);
+exports.getUser = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const user = await User.findOne({ id });
   if (!user) {
     return res.status(404).json({
       status: 'fail',
@@ -38,7 +43,7 @@ exports.getUser = (req, res) => {
     status: 'success',
     data: { user }
   });
-};
+});
 // desc      Create a user
 // @router  POST /api/v1/users
 // @access  Private
