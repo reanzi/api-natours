@@ -6,6 +6,7 @@ const authController = require('../controllers/authController');
 
 //Routes to Authenticate user
 router.post('/signup', authController.signup);
+router.post('/login', authController.login);
 
 // Routes to work with the users already in the system
 router

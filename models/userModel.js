@@ -18,7 +18,8 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, 'Provide a password'],
-    minLength: 8
+    minLength: 8,
+    select: false
   },
   passwordConfirm: {
     type: String,
@@ -40,6 +41,7 @@ function salting() {
   }
   return value;
 }
+
 userSchema.pre('save', async function(next) {
   // Only run this if password was modified
   if (!this.isModified('password')) return next();
@@ -51,5 +53,12 @@ userSchema.pre('save', async function(next) {
   next();
 });
 
+// An Incedence methods
+userSchema.methods.correctPassword = async function(
+  candidatePasswoord,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePasswoord, userPassword);
+};
 const User = mongoose.model('User', userSchema);
 module.exports = User;

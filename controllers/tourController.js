@@ -22,7 +22,7 @@ exports.popularTours = (req, res, next) => {
  * @param {*} TOURS RESOURCE
  */
 // desc      Get all tours
-// @router  GET /api/v1/tours
+// @router  GET /api/v1/tour
 // @access  Public
 exports.getAllTours = asyncHandler(async (req, res, next) => {
   // EXCUTE THE QUERY
