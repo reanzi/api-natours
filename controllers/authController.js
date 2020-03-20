@@ -78,3 +78,13 @@ exports.protect = asyncHandler(async (req, res, next) => {
   req.user = currentUser;
   next();
 });
+
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    //roles ['admin', 'lead-guide']; eg role='user'
+    if (!roles.includes(req.user.role)) {
+      return next(new ErrorResponse('Permission denied to this action', 403));
+    }
+    next();
+  };
+};
