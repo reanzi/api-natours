@@ -31,7 +31,8 @@ const userSchema = new mongoose.Schema({
       },
       message: 'Password do not match!'
     }
-  }
+  },
+  passwordChangedAt: Date
 });
 // cost for hashing a password 10 - 15
 function salting() {
@@ -59,6 +60,19 @@ userSchema.methods.correctPassword = async function(
   userPassword
 ) {
   return await bcrypt.compare(candidatePasswoord, userPassword);
+};
+userSchema.methods.changePasswordAfter = function(JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    //change date into time(seconds)
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    ); // /1000 mills to sec, 10 => base ten
+    // console.log(changedTimestamp, JWTTimestamp);
+    return JWTTimestamp < changedTimestamp; // token issued after pass changed
+  }
+  //FALSE means not Changed
+  return false;
 };
 const User = mongoose.model('User', userSchema);
 module.exports = User;
