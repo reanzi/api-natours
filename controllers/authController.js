@@ -182,16 +182,3 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
   // 4) Login the user, send JWT
   createSendToken(user, 201, res);
 });
-exports.currentUser = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
-
-  if (!user) {
-    return next('No active user at the moment', 404);
-  }
-  res.status(200).json({
-    status: 'success',
-    data: {
-      user
-    }
-  });
-});

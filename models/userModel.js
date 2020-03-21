@@ -41,7 +41,12 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
-  passwordResetRequested: { type: Boolean, default: false }
+  passwordResetRequested: { type: Boolean, default: false },
+  active: {
+    type: Boolean,
+    default: true,
+    select: false
+  }
 });
 // cost for hashing a password 10 - 15
 function salting() {
@@ -68,6 +73,12 @@ userSchema.pre('save', function(next) {
   if (!this.isModified('password') || this.isNew) return next();
 
   this.passwordChangedAt = Date.now() - 1000; // this ensures the token is issued after passwordChangedAt timestample
+  next();
+});
+
+userSchema.pre(/^find/, function(next) {
+  // this points to current query
+  this.find({ active: { $ne: false } });
   next();
 });
 
