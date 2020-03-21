@@ -3,6 +3,7 @@
 const fs = require('fs');
 const User = require('./../models/userModel');
 const asyncHandler = require('./../middleware/asyncHandler');
+const ErrorResponse = require('./../utils/ErrorResponse');
 
 // const users = JSON.parse(
 //   fs.readFileSync(`${__dirname}/../dev-data/data/users.json`)
@@ -44,6 +45,24 @@ exports.getUser = asyncHandler(async (req, res, next) => {
     data: { user }
   });
 });
+
+/**  @desc   Get current logged in User
+ *  @route  POST /api/v1/auth/me
+ *  @access private
+ */
+exports.getMe = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+  if (!user) {
+    return next(
+      new ErrorResponse('Your session is expired,Please Login again', 401)
+    );
+  }
+  res.status(200).json({
+    success: true,
+    data: user
+  });
+  // next();
+});
 // desc      Create a user
 // @router  POST /api/v1/users
 // @access  Private
@@ -64,7 +83,7 @@ exports.createUser = (req, res) => {
     }
   );
 };
-// desc      Update User
+// desc      Update User, by admins
 // @router  PATCH /api/v1/users/:id
 // @access  Private
 exports.updateUser = (req, res) => {
@@ -80,6 +99,55 @@ exports.updateUser = (req, res) => {
     data: { user: '<Updated User>' }
   });
 };
+
+const filterObj = (obj, ...allowedFields) => {
+  const newObj = {};
+  Object.keys(obj).forEach(el => {
+    if (allowedFields.includes(el)) newObj[el] = obj[el];
+  });
+  return newObj;
+};
+// desc      Current user to update user releted stuff
+// @router  PATCH /api/v1/users/updateMe
+// @access  Private
+exports.updateMe = asyncHandler(async (req, res, next) => {
+  // 1) Create error if user POTs password data
+
+  if (req.body.password || req.body.passwordConfirm) {
+    return next(
+      new ErrorResponse(
+        'This is not for password updated. Please use /password_update'
+      ),
+      400
+    );
+  }
+  // Filtered out unwanted fields names that are not allowed to be updated
+  const filteredBody = filterObj(req.body, 'name', 'email');
+
+  // 2) Update user doccument
+  const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
+    new: true,
+    runValidators: true
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: updatedUser
+    }
+  });
+});
+// desc      Deactivate User Account by User
+// @router  DELETE /api/v1/users/deleteMe
+// @access  Private
+exports.deleteMe = asyncHandler(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user.id, { active: false });
+
+  res.status(204).json({
+    status: 'success',
+    data: null
+  });
+});
 // desc      Delete User
 // @router  DELETE /api/v1/users/:id
 // @access  Private
