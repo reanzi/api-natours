@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
@@ -37,7 +38,10 @@ const userSchema = new mongoose.Schema({
       message: 'Password do not match!'
     }
   },
-  passwordChangedAt: Date
+  passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
+  passwordResetRequested: { type: Boolean, default: false }
 });
 // cost for hashing a password 10 - 15
 function salting() {
@@ -48,6 +52,7 @@ function salting() {
   return value;
 }
 
+// Middlewares
 userSchema.pre('save', async function(next) {
   // Only run this if password was modified
   if (!this.isModified('password')) return next();
@@ -59,12 +64,22 @@ userSchema.pre('save', async function(next) {
   next();
 });
 
+userSchema.pre('save', function(next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000; // this ensures the token is issued after passwordChangedAt timestample
+  next();
+});
+
 // An Incedence methods
 userSchema.methods.correctPassword = async function(
   candidatePasswoord,
   userPassword
 ) {
   return await bcrypt.compare(candidatePasswoord, userPassword);
+};
+userSchema.methods.resetRequested = async function() {
+  return this.passwordResetRequested;
 };
 userSchema.methods.changePasswordAfter = function(JWTTimestamp) {
   if (this.passwordChangedAt) {
@@ -79,5 +94,19 @@ userSchema.methods.changePasswordAfter = function(JWTTimestamp) {
   //FALSE means not Changed
   return false;
 };
+userSchema.methods.createPasswordResetToken = function() {
+  // Generating random string
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  this.passwordResetRequested = true;
+  return resetToken;
+};
+
 const User = mongoose.model('User', userSchema);
 module.exports = User;
