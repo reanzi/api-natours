@@ -40,7 +40,8 @@ const userSchema = new mongoose.Schema({
   },
   passwordChangedAt: Date,
   passwordResetToken: String,
-  passwordResetExpires: Date
+  passwordResetExpires: Date,
+  passwordResetRequested: { type: Boolean, default: false }
 });
 // cost for hashing a password 10 - 15
 function salting() {
@@ -51,6 +52,7 @@ function salting() {
   return value;
 }
 
+// Middlewares
 userSchema.pre('save', async function(next) {
   // Only run this if password was modified
   if (!this.isModified('password')) return next();
@@ -62,12 +64,22 @@ userSchema.pre('save', async function(next) {
   next();
 });
 
+userSchema.pre('save', function(next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000; // this ensures the token is issued after passwordChangedAt timestample
+  next();
+});
+
 // An Incedence methods
 userSchema.methods.correctPassword = async function(
   candidatePasswoord,
   userPassword
 ) {
   return await bcrypt.compare(candidatePasswoord, userPassword);
+};
+userSchema.methods.resetRequested = async function() {
+  return this.passwordResetRequested;
 };
 userSchema.methods.changePasswordAfter = function(JWTTimestamp) {
   if (this.passwordChangedAt) {
@@ -92,7 +104,7 @@ userSchema.methods.createPasswordResetToken = function() {
     .digest('hex');
 
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
-
+  this.passwordResetRequested = true;
   return resetToken;
 };
 
