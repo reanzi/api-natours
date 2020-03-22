@@ -20,7 +20,7 @@ const ErrorResponse = require('./../utils/ErrorResponse');
  * @access  Public
  */
 exports.getAllUsers = asyncHandler(async (req, res, next) => {
-  const users = await User.find();
+  const users = await User.find().select('-passwordResetRequested');
   // SEND RESPONSE
   res.status(200).json({
     status: 'success',
@@ -57,6 +57,7 @@ exports.getMe = asyncHandler(async (req, res, next) => {
       new ErrorResponse('Your session is expired,Please Login again', 401)
     );
   }
+  user.passwordResetRequested = undefined;
   res.status(200).json({
     success: true,
     data: user
@@ -67,27 +68,20 @@ exports.getMe = asyncHandler(async (req, res, next) => {
 // @router  POST /api/v1/users
 // @access  Private
 exports.createUser = (req, res) => {
-  const newId = users[users.length - 1].id + 1;
-  const newUser = Object.assign({ id: newId }, req.body);
-  users.push(newUser);
-  fs.writeFile(
-    `${__dirname}/dev-data/data/users.json`,
-    JSON.stringify(users),
-    err => {
-      res.status(201).json({
-        status: 'success',
-        data: {
-          newUser
-        }
-      });
+  const newUser = 'JD';
+
+  res.status(201).json({
+    status: 'success',
+    data: {
+      newUser
     }
-  );
+  });
 };
 // desc      Update User, by admins
 // @router  PATCH /api/v1/users/:id
 // @access  Private
 exports.updateUser = (req, res) => {
-  const user = users.find(el => el._id === req.params.id);
+  const user = '';
   if (!user) {
     return res.status(404).json({
       status: 'fail',

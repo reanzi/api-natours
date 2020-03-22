@@ -12,8 +12,18 @@ const signToken = id => {
   });
 };
 const createSendToken = (user, statusCode, res) => {
-  // 4) Login the user, send the JWT
   const token = signToken(user._id);
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 60 * 60 * 1000
+    ),
+    httpOnly: true
+  };
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  res.cookie('jwt', token, cookieOptions);
+  user.password = undefined;
+  user.passwordResetRequested = undefined;
+  user.active = undefined;
   res.status(statusCode).json({
     status: 'success',
     token,
@@ -105,7 +115,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   }
   // 2) Generate the random reset token
   const resetToken = user.createPasswordResetToken();
-  console.log(resetToken);
+  // console.log(resetToken);
   await user.save({ validateBeforeSave: false });
 
   // 3) Send reset token to user's email
