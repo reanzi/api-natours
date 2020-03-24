@@ -102,6 +102,7 @@ const tourSchema = new mongoose.Schema(
     // guides: Array // using embedding
     guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }] // using child refferencing
   },
+
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
@@ -111,6 +112,13 @@ const tourSchema = new mongoose.Schema(
 // virtual properties => fields which are not saved into the db to save space
 tourSchema.virtual('durationWeeks').get(function() {
   return this.duration / 7;
+});
+
+// Virtual Populated
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id'
 });
 
 /**

@@ -43,10 +43,12 @@ exports.getAllTours = asyncHandler(async (req, res, next) => {
 // @router  GET /api/v1/tours/:id
 // @access  Public
 exports.getTour = asyncHandler(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id).populate({
-    path: 'guides',
-    select: '-__v -passwordResetRequested'
-  }); //Same as const tour = await Tour.findOne({ _id: req.params.id });
+  const tour = await Tour.findById(req.params.id)
+    .populate('reviews')
+    .populate({
+      path: 'guides',
+      select: '-__v -passwordResetRequested'
+    }); //Same as const tour = await Tour.findOne({ _id: req.params.id });
   if (!tour) {
     return next(new ErrorResponse(`No Tour found with that ID`, 404));
   }
