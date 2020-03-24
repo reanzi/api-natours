@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+// const User = require('./../models/userModel');
 // const validator = require('validator');
 
 const tourSchema = new mongoose.Schema(
@@ -77,8 +78,31 @@ const tourSchema = new mongoose.Schema(
     secretTour: {
       type: String,
       default: false
-    }
+    },
+    startLocation: {
+      // GeoJSON
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point']
+      },
+      coordinates: [Number],
+      address: String,
+      description: String
+    },
+    locations: [
+      {
+        type: { type: String, default: 'Point', enum: ['Point'] },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number
+      }
+    ],
+    // guides: Array // using embedding
+    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }] // using child refferencing
   },
+
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
@@ -88,6 +112,13 @@ const tourSchema = new mongoose.Schema(
 // virtual properties => fields which are not saved into the db to save space
 tourSchema.virtual('durationWeeks').get(function() {
   return this.duration / 7;
+});
+
+// Virtual Populated
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id'
 });
 
 /**
@@ -105,11 +136,20 @@ tourSchema.pre('save', function(next) {
   next();
 });
 
+// // EMBEDING USER DATA INTO A TOUR DATA
+// tourSchema.pre('save', async function(next) {
+//   const guidesPromises = this.guides.map(
+//     async id => await User.findById(id).select('-passwordResetRequested')
+//   );
+//   this.guides = await Promise.all(guidesPromises);
+//   next();
+// });
 // tourSchema.post('save', function(doc, next) {
 //   console.log(doc);
 //   next();
 // })
 
+// // REFFERENCING USER DATA INTO A TOUR DATA
 // 2:) Query Middleware -> allows to run a func after a query
 tourSchema.pre(/^find/, function(next) {
   // avoid certain resources to a certain people/call
@@ -118,6 +158,16 @@ tourSchema.pre(/^find/, function(next) {
   this.start = Date.now();
   next();
 });
+
+// If needed to populate in every query
+// tourSchema.pre(/^find/, function(next) {
+//   this.populate({
+//     path: 'guides',
+//     select: '-__v -passwordResetRequested'
+//   });
+//   next();
+// });
+
 tourSchema.post(/^find/, function(docs, next) {
   console.log(`Query took: ${Date.now() - this.start} milliseconds`);
   // console.log(docs);

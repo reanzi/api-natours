@@ -6,10 +6,13 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 // const colors = require('colors');
-const tourRouter = require('./routes/tourRoutes');
-const userRouter = require('./routes/userRoutes');
 const ErrorResponse = require('./utils/ErrorResponse');
 const errorHandler = require('./middleware/error');
+
+//Routes
+const tourRouter = require('./routes/tourRoutes');
+const userRouter = require('./routes/userRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
 // const globalError = require('./controllers/errorController');
 
 // const express = require('express');
@@ -68,6 +71,7 @@ app.use((req, res, next) => {
 // 2) ROUTES   mounting the router
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 // app.use(errorHandler);
 app.all('*', (req, res, next) => {
