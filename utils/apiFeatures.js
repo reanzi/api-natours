@@ -34,7 +34,7 @@ class APIFeatures {
       const fields = this.queryString.fields.split(',').join(' ');
       this.query = this.query.select(fields);
     } else {
-      this.query = this.query.select('-__v'); // exlude __v
+      this.query = this.query.select('-__v -passwordResetRequested'); // exlude __v
     }
     return this;
   }
