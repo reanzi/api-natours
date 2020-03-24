@@ -4,10 +4,12 @@ const asyncHandler = require('./../middleware/asyncHandler');
 const Review = require('./../models/reviewModel');
 
 // desc      Fetch all review
-// @router  POST /api/v1/reviews
+// @router  POST /api/v1/tours/:id/reviews
 // @access  Public
 exports.getAllReviews = asyncHandler(async (req, res, next) => {
-  const reviews = await Review.find();
+  let filter = {};
+  if (req.params.tourId) filter = { tour: req.params.tourId };
+  const reviews = await Review.find(filter);
 
   res.status(200).json({
     status: 'success',
@@ -17,7 +19,7 @@ exports.getAllReviews = asyncHandler(async (req, res, next) => {
 });
 
 // desc      Create a review
-// @router  POST /api/v1/reviews
+// @router  POST /api/v1/tours/:id/reviews
 // @access  Private
 exports.createReview = asyncHandler(async (req, res, next) => {
   // Allow Nested routes
