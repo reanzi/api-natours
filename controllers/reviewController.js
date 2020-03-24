@@ -20,6 +20,10 @@ exports.getAllReviews = asyncHandler(async (req, res, next) => {
 // @router  POST /api/v1/reviews
 // @access  Private
 exports.createReview = asyncHandler(async (req, res, next) => {
+  // Allow Nested routes
+  if (!req.body.tour) req.body.tour = req.params.tourId;
+  if (!req.body.author) req.body.author = req.user.id;
+
   const newReview = await Review.create(req.body);
   res.status(201).json({
     status: 'success',
