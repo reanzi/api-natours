@@ -1,9 +1,7 @@
-// const express = require('express');
-
-const fs = require('fs');
 const User = require('./../models/userModel');
 const asyncHandler = require('./../middleware/asyncHandler');
 const ErrorResponse = require('./../utils/ErrorResponse');
+const factory = require('./handlerFactory');
 
 // const users = JSON.parse(
 //   fs.readFileSync(`${__dirname}/../dev-data/data/users.json`)
@@ -19,32 +17,32 @@ const ErrorResponse = require('./../utils/ErrorResponse');
  * @router  GET /api/v1/users
  * @access  Public
  */
-exports.getAllUsers = asyncHandler(async (req, res, next) => {
-  const users = await User.find().select('-passwordResetRequested');
-  // SEND RESPONSE
-  res.status(200).json({
-    status: 'success',
-    results: users.length,
-    data: { users }
+
+exports.createUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not defined! Please use /signup instead'
   });
-});
+};
+/**
+ * @desc  Get all users
+ * @router  GET /api/v1/users
+ * @access  Public
+ */
+exports.getAllUsers = factory.getAll(User);
+// asyncHandler(async (req, res, next) => {
+//   const users = await User.find().select('-passwordResetRequested');
+//   // SEND RESPONSE
+//   res.status(200).json({
+//     status: 'success',
+//     results: users.length,
+//     data: { users }
+//   });
+// });
 // desc      Get Single users
 // @router  GET /api/v1/users/:id
 // @access  Public
-exports.getUser = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const user = await User.findOne({ id });
-  if (!user) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'No such user in db'
-    });
-  }
-  res.status(200).json({
-    status: 'success',
-    data: { user }
-  });
-});
+exports.getUser = factory.getOne(User);
 
 /**  @desc   Get current logged in User
  *  @route  POST /api/v1/auth/me
@@ -64,35 +62,20 @@ exports.getMe = asyncHandler(async (req, res, next) => {
   });
   // next();
 });
-// desc      Create a user
-// @router  POST /api/v1/users
-// @access  Private
-exports.createUser = (req, res) => {
-  const newUser = 'JD';
-
-  res.status(201).json({
-    status: 'success',
-    data: {
-      newUser
-    }
-  });
-};
-// desc      Update User, by admins
+// desc      Update User, by admins; Updating data not the password
 // @router  PATCH /api/v1/users/:id
 // @access  Private
-exports.updateUser = (req, res) => {
-  const user = '';
-  if (!user) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'No such user'
-    });
-  }
-  res.status(200).json({
-    status: 'success',
-    data: { user: '<Updated User>' }
-  });
-};
+exports.updateUser = factory.updateOne(User);
+
+// desc      Deactivate User Account by User
+// @router  DELETE /api/v1/users/deleteMe
+// @access  Private
+exports.deleteMe = factory.deactivateUser(User);
+
+// desc      Delete User By admins User
+// @router  DELETE /api/v1/users/:id
+// @access  Private
+exports.deleteUser = factory.deleteOne(User);
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -118,7 +101,7 @@ exports.updateMe = asyncHandler(async (req, res, next) => {
   // Filtered out unwanted fields names that are not allowed to be updated
   const filteredBody = filterObj(req.body, 'name', 'email');
 
-  // 2) Update user doccument
+  // 2) Update user doccument,
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true,
     runValidators: true
@@ -131,31 +114,3 @@ exports.updateMe = asyncHandler(async (req, res, next) => {
     }
   });
 });
-// desc      Deactivate User Account by User
-// @router  DELETE /api/v1/users/deleteMe
-// @access  Private
-exports.deleteMe = asyncHandler(async (req, res, next) => {
-  await User.findByIdAndUpdate(req.user.id, { active: false });
-
-  res.status(204).json({
-    status: 'success',
-    data: null
-  });
-});
-// desc      Delete User
-// @router  DELETE /api/v1/users/:id
-// @access  Private
-exports.deleteUser = (req, res) => {
-  console.log(req.requestTime);
-  const user = users.find(el => el._id === req.params.id);
-  if (!user) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'No such user'
-    });
-  }
-  res.status(204).json({
-    status: 'success',
-    data: null
-  });
-};

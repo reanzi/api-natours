@@ -1,9 +1,38 @@
-const APIFeatures = require('./../utils/apiFeatures');
-const ErrorResponse = require('../utils/ErrorResponse');
+// const APIFeatures = require('./../utils/apiFeatures');
+// const ErrorResponse = require('../utils/ErrorResponse');
 const asyncHandler = require('./../middleware/asyncHandler');
+const factory = require('./handlerFactory');
 // const express = require('express');
 const Tour = require('./../models/tourModel');
 // const fs = require('fs');
+
+/**
+ * @param {*} TOURS RESOURCE
+ */
+// desc      Get all tours
+// @router  GET /api/v1/tour
+// @access  Public
+exports.getAllTours = factory.getAll(Tour);
+
+// desc      Get Single tours
+// @router  GET /api/v1/tours/:id
+// @access  Public
+const options = [
+  { path: 'reviews' },
+  { path: 'guides', select: '-__v -passwordResetRequested' }
+];
+exports.getTour = factory.getOne(Tour, options);
+exports.createTour = factory.createOne(Tour);
+
+// desc      Update Tour
+// @router  PATCH /api/v1/tours/:id
+// @access  Private
+exports.updateTour = factory.updateOne(Tour);
+
+// desc      Delete Tour
+// @router  DELETE /api/v1/tours/:id
+// @access  Private
+exports.deleteTour = factory.deleteOne(Tour);
 
 exports.topTours = (req, res, next) => {
   req.query.limit = '5';
@@ -18,88 +47,6 @@ exports.popularTours = (req, res, next) => {
   next();
 };
 
-/**
- * @param {*} TOURS RESOURCE
- */
-// desc      Get all tours
-// @router  GET /api/v1/tour
-// @access  Public
-exports.getAllTours = asyncHandler(async (req, res, next) => {
-  // EXCUTE THE QUERY
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .pagenate();
-  const tours = await features.query;
-  // SEND RESPONSE
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: { tours }
-  });
-});
-// desc      Get Single tours
-// @router  GET /api/v1/tours/:id
-// @access  Public
-exports.getTour = asyncHandler(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id)
-    .populate('reviews')
-    .populate({
-      path: 'guides',
-      select: '-__v -passwordResetRequested'
-    }); //Same as const tour = await Tour.findOne({ _id: req.params.id });
-  if (!tour) {
-    return next(new ErrorResponse(`No Tour found with that ID`, 404));
-  }
-  res.status(200).json({
-    success: true,
-    data: tour
-  });
-});
-
-// desc      Create a tour
-// @router  POST /api/v1/tours
-// @access  Private
-exports.createTour = asyncHandler(async (req, res, next) => {
-  const newTour = await Tour.create(req.body);
-  res.status(201).json({
-    status: 'success',
-    data: {
-      newTour
-    }
-  });
-});
-// desc      Update Tour
-// @router  PATCH /api/v1/tours/:id
-// @access  Private
-exports.updateTour = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const tour = await Tour.findByIdAndUpdate(id, req.body, {
-    new: true,
-    runValidators: true
-  });
-  if (!tour) {
-    return next(new ErrorResponse(`No Tour found with that ID`, 404));
-  }
-  res.status(200).json({
-    status: 'success',
-    data: { tour }
-  });
-});
-// desc      Delete Tour
-// @router  DELETE /api/v1/tours/:id
-// @access  Private
-exports.deleteTour = asyncHandler(async (req, res, next) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
-  if (!tour) {
-    return next(new ErrorResponse(`No Tour found with that ID`, 404));
-  }
-  res.status(204).json({
-    status: 'success',
-    data: null
-  });
-});
 // desc      Tour Statistics
 // @router  GET /api/v1/tours/tour-stats
 // @access  Private
