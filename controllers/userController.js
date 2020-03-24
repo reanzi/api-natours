@@ -49,18 +49,8 @@ exports.getUser = factory.getOne(User);
  *  @access private
  */
 exports.getMe = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
-  if (!user) {
-    return next(
-      new ErrorResponse('Your session is expired,Please Login again', 401)
-    );
-  }
-  user.passwordResetRequested = undefined;
-  res.status(200).json({
-    success: true,
-    data: user
-  });
-  // next();
+  req.params.id = req.user.id;
+  next();
 });
 // desc      Update User, by admins; Updating data not the password
 // @router  PATCH /api/v1/users/:id
