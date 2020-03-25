@@ -45,7 +45,9 @@ exports.login = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('Please Provide email and Password!', 400));
   }
   // .2) Check if user exist & password is correct
-  const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ email }).select(
+    '+password +passwordResetRequested'
+  );
   // const correct = await user.correctPassword(password, user.password);
   if (await user.resetRequested())
     return next(
