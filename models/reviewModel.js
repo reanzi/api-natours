@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Tour = require('./tourModel');
+
 const reviewSchema = new mongoose.Schema(
   {
     review: {
@@ -59,16 +60,39 @@ reviewSchema.statics.calcAverageRatings = async function(tourId) {
     }
   ]);
   // console.log(stats);
-  await Tour.findByIdAndUpdate(tourId, {
-    ratingsQuantity: stats[0].nRating,
-    ratingsAverage: stats[0].avgRating
-  });
+  if (stats > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].nRating,
+      ratingsAverage: stats[0].avgRating
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5
+    });
+  }
 };
 
 reviewSchema.post('save', function() {
   // this points to current review
   this.constructor.calcAverageRatings(this.tour); // coz Review is not yet declared
   // next();
+});
+/**
+ * because this is the query middleware, it points to the query not the doc,
+ * hence we use `this.findOne` to get access the doc being processed, before the query is done excutting,
+ * and we save the result(doc) into the 'this.alterdReview'
+ * ==>> this ~ this.alterdReview
+ */
+reviewSchema.pre(/^findOneAnd/, async function(next) {
+  this.alterdReview = await this.findOne();
+  next();
+});
+reviewSchema.post(/^findOneAnd/, async function() {
+  //Post middleware do not have a next function
+  await this.alterdReview.constructor.calcAverageRatings(
+    this.alterdReview.tour
+  );
 });
 const Review = mongoose.model('Review', reviewSchema);
 
