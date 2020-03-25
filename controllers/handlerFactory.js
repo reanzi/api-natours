@@ -34,7 +34,8 @@ exports.getAll = Model =>
 exports.getOne = (Model, popOptions) =>
   asyncHandler(async (req, res, next) => {
     let query = Model.findById(req.params.id);
-    if (popOptions) query = query.populate(popOptions);
+    if (popOptions)
+      query = query.populate(popOptions).select('-passwordResetRequested');
 
     const doc = await query;
     if (!doc) {
