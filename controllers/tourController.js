@@ -1,5 +1,5 @@
 // const APIFeatures = require('./../utils/apiFeatures');
-// const ErrorResponse = require('../utils/ErrorResponse');
+const ErrorResponse = require('../utils/ErrorResponse');
 const asyncHandler = require('./../middleware/asyncHandler');
 const factory = require('./handlerFactory');
 // const express = require('express');
@@ -124,6 +124,79 @@ exports.getMonthlyPlan = asyncHandler(async (req, res, next) => {
     status: 'success',
     data: {
       plan
+    }
+  });
+});
+
+// '/tours-within/:distance/center/-6.4418128,38.8937168/unit/:unit'
+exports.getToursWithin = asyncHandler(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+
+  /**
+   * radius should be in radians, hence we divide the distance by the radius of the earth
+   */
+  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+  if (!lat || !lng) {
+    next(
+      new ErrorResponse(
+        'Please provide Latitude and Longitude in the format of lat,lng'
+      ),
+      400
+    );
+  }
+
+  // console.log(distance, lat, lng, unit);
+  const tours = await Tour.find({
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } }
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: {
+      data: tours
+    }
+  });
+});
+
+exports.getDistances = asyncHandler(async (req, res, next) => {
+  const { latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+
+  const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+  if (!lat || !lng) {
+    next(
+      new ErrorResponse(
+        'Please provide Latitude and Longitude in the format of lat,lng'
+      ),
+      400
+    );
+  }
+
+  const distances = await Tour.aggregate([
+    {
+      $project: {
+        distance: 1,
+        name: 1
+      }
+    },
+    {
+      $geoNear: {
+        near: {
+          type: 'Point',
+          coordinates: [lng * 1, lat * 1]
+        },
+        distanceField: 'distance',
+        distanceMultiplier: multiplier
+      }
+    }
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      data: distances
     }
   });
 });

@@ -44,6 +44,16 @@ router
     tourController.createTour
   );
 
+// Route to get tours within a certain distance
+// /tours-within?distance=233&center=-40,35&unit=km   => using query string
+// /tours-within/233/center/-6.4418128,38.8937168/unit/km  => cleaner way
+
+router
+  .route('/tours-within/:distance/center/:latlng/unit/:unit')
+  .get(tourController.getToursWithin);
+
+// Calculate the distances from a point to all other tours
+router.route('/distances/:latlng/unit/:unit').get(tourController.getDistances);
 router
   .route('/:id')
   .get(tourController.getTour)
