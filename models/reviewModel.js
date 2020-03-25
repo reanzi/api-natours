@@ -1,9 +1,5 @@
-// review,rating,createdAt, ref to tour, ref to user
 const mongoose = require('mongoose');
-// const slugify = require('slugify');
-// const User = require('./../models/userModel');
-// const validator = require('validator');
-
+const Tour = require('./tourModel');
 const reviewSchema = new mongoose.Schema(
   {
     review: {
@@ -48,6 +44,32 @@ reviewSchema.pre(/^find/, function(next) {
   next();
 });
 
+// Static Methods
+reviewSchema.statics.calcAverageRatings = async function(tourId) {
+  const stats = await this.aggregate([
+    {
+      $match: { tour: tourId }
+    },
+    {
+      $group: {
+        _id: '$tour',
+        nRating: { $sum: 1 },
+        avgRating: { $avg: '$rating' }
+      }
+    }
+  ]);
+  // console.log(stats);
+  await Tour.findByIdAndUpdate(tourId, {
+    ratingsQuantity: stats[0].nRating,
+    ratingsAverage: stats[0].avgRating
+  });
+};
+
+reviewSchema.post('save', function() {
+  // this points to current review
+  this.constructor.calcAverageRatings(this.tour); // coz Review is not yet declared
+  // next();
+});
 const Review = mongoose.model('Review', reviewSchema);
 
 module.exports = Review;
