@@ -23,7 +23,8 @@ exports.getAll = Model =>
       .sort()
       .limitFields()
       .pagenate();
-    const docs = await features.query.select();
+    // const docs = await features.query.explain();
+    const docs = await features.query;
     // SEND RESPONSE
     res.status(200).json({
       status: 'success',
