@@ -109,6 +109,10 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+// tourSchema.index({ price: 1 });
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+
 // virtual properties => fields which are not saved into the db to save space
 tourSchema.virtual('durationWeeks').get(function() {
   return this.duration / 7;
