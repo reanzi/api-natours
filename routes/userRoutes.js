@@ -9,21 +9,20 @@ router.post('/signup', authController.signup);
 router.post('/login', authController.login);
 router.post('/forgot_password', authController.forgotPassword);
 router.patch('/reset_password/:token', authController.resetPassword);
-router.patch(
-  '/password_update',
-  authController.protect,
-  authController.updatePassword
-);
-router.get(
-  '/me',
-  authController.protect,
-  userController.getMe,
-  userController.getUser
-);
-router.patch('/updateMe', authController.protect, userController.updateMe);
-router.delete('/deleteMe', authController.protect, userController.deleteMe);
 
-// Routes to work with the users already in the system
+// These routes works for Authenticated users
+
+router.use(authController.protect); // protect all routes which follows after this middleware
+
+// Routes for the current User
+router.patch('/password_update', authController.updatePassword);
+router.get('/me', userController.getMe, userController.getUser);
+router.patch('/updateMe', userController.updateMe);
+router.delete('/deleteMe', userController.deleteMe);
+
+// Routes to work with the users already in the system; Admin's Routes
+router.use(authController.restrictTo('admin'));
+
 router
   .route('/')
   .get(userController.getAllUsers)
