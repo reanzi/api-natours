@@ -19,7 +19,7 @@ exports.getTour = asyncHandler(async (req, res) => {
     path: 'reviews',
     fields: 'review rating user'
   });
-  console.log(tour);
+  //   console.log(tour);
   // 2) Build the template
 
   // 3) Render template using the data from the step 1
