@@ -103,7 +103,6 @@ const tourSchema = new mongoose.Schema(
     // guides: Array // using embedding
     guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }] // using child refferencing
   },
-
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
@@ -166,13 +165,13 @@ tourSchema.pre(/^find/, function(next) {
 });
 
 // If needed to populate in every query
-// tourSchema.pre(/^find/, function(next) {
-//   this.populate({
-//     path: 'guides',
-//     select: '-__v -passwordResetRequested'
-//   });
-//   next();
-// });
+tourSchema.pre(/^find/, function(next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v'
+  });
+  next();
+});
 
 tourSchema.post(/^find/, function(docs, next) {
   console.log(`Query took: ${Date.now() - this.start} milliseconds`);

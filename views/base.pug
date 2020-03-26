@@ -1,0 +1,17 @@
+doctype html
+html
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    link(rel='stylesheet' href='/css/style.css')
+    link(href='https://fonts.googleapis.com/css?family=Lato:300,300i,700' rel='stylesheet')
+    link(rel='shortcut icon' type='image/png' href='/img/favicon.png')
+    title Natours | #{!title ? 'Exciting tours for adventurous people': title }
+  body
+    // HEADER
+    include _header
+    // MAIN CONTENT
+    block content
+      h1 This is the Placeholder Heading
+    // FOOTER
+    include _footer

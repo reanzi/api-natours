@@ -18,8 +18,8 @@ exports.getAllTours = factory.getAll(Tour);
 // @router  GET /api/v1/tours/:id
 // @access  Public
 const options = [
-  { path: 'reviews' },
-  { path: 'guides', select: '-__v -passwordResetRequested' }
+  { path: 'reviews' }
+  // { path: 'guides', select: '-__v -passwordResetRequested' }
 ];
 exports.getTour = factory.getOne(Tour, options);
 exports.createTour = factory.createOne(Tour);

@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -10,6 +11,7 @@ const ErrorResponse = require('./utils/ErrorResponse');
 const errorHandler = require('./middleware/error');
 
 //Routes
+const viewRouter = require('./routes/viewRoutes');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
@@ -17,6 +19,12 @@ const reviewRouter = require('./routes/reviewRoutes');
 
 // const express = require('express');
 const app = express();
+
+app.set('view engine', 'pug'); //setting Pug as a template engine
+app.set('views', path.join(__dirname, 'views')); // views directory
+
+// Serving static files
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Set Security HTTP headers
 app.use(helmet());
@@ -58,8 +66,6 @@ app.use(
     ]
   })
 );
-// Serving static files
-app.use(express.static(`${__dirname}/public`));
 
 // Test middleware
 app.use((req, res, next) => {
@@ -68,9 +74,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// 2) ROUTES   mounting the router
-app.use('/api/v1/users', userRouter);
+// 2) ROUTES  MOUNTING
+
+//    --> Back-End Routes
+app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 
 // app.use(errorHandler);
