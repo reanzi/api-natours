@@ -1,7 +1,7 @@
 const Tour = require('./../models/tourModel');
 const asyncHandler = require('./../middleware/asyncHandler');
 
-exports.getOverview = asyncHandler(async (req, res) => {
+exports.getOverview = asyncHandler(async (req, res, next) => {
   // 1) Get tour data from collection
   const tours = await Tour.find();
 
@@ -13,7 +13,7 @@ exports.getOverview = asyncHandler(async (req, res) => {
   });
 });
 
-exports.getTour = asyncHandler(async (req, res) => {
+exports.getTour = asyncHandler(async (req, res, next) => {
   // 1) Get the data for the requested review
   const tour = await await Tour.findOne({ slug: req.params.slug }).populate({
     path: 'reviews',
@@ -28,3 +28,14 @@ exports.getTour = asyncHandler(async (req, res) => {
     tour
   });
 });
+
+exports.getLoginForm = (req, res) => {
+  res.status(200).render('login', {
+    title: 'Log into your account'
+  });
+};
+exports.getSignupForm = (req, res) => {
+  res.status(200).render('signup', {
+    title: 'Create your account'
+  });
+};
