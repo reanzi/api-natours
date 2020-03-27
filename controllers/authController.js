@@ -20,13 +20,29 @@ const createSendToken = (user, statusCode, res) => {
     httpOnly: true
   };
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
-  res.cookie('jwt', token, cookieOptions);
+
+  // res.cookie('jwt', token, cookieOptions);
+  // res.cookies = {
+  //   jwt: token,
+  //   cookieOptions
+  // };
+
+  const cookies = {
+    jwt: token,
+    cookieOptions
+  };
+  // console.log('cookie created successfully');
+  // console.log(res.cookies);
+
+  // Remove fields from the response
   user.password = undefined;
   user.passwordResetRequested = undefined;
   user.active = undefined;
+  // console.log(res.cookie());
   res.status(statusCode).json({
     status: 'success',
     token,
+    cookies,
     data: {
       user
     }
@@ -48,6 +64,9 @@ exports.login = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email }).select(
     '+password +passwordResetRequested'
   );
+  if (!user || !(await user.correctPassword(password, user.password))) {
+    return next(new ErrorResponse('Incorect email or password', 401));
+  }
   // const correct = await user.correctPassword(password, user.password);
   if (await user.resetRequested())
     return next(
@@ -56,9 +75,7 @@ exports.login = asyncHandler(async (req, res, next) => {
         400
       )
     );
-  if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(new ErrorResponse('Incorect email or password', 401));
-  }
+
   // .3) if everything is ok, send token to client
   createSendToken(user, 200, res);
 });

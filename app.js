@@ -7,7 +7,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 
-// const cors = require('cors');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 // const colors = require('colors');
 const ErrorResponse = require('./utils/ErrorResponse');
@@ -26,8 +26,12 @@ const app = express();
 app.set('view engine', 'pug'); //setting Pug as a template engine
 app.set('views', path.join(__dirname, 'views')); // views directory
 
+// app.use(cookieParser());
 // Serving static files
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(cors());
+app.options('*', cors());
 
 // Set Security HTTP headers
 app.use(helmet());
@@ -85,21 +89,6 @@ app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
-
-// app.use(
-//   cors({Access-Control-Allow-Origin: *})
-// );
-
-// app.use(function(req, res, next) {
-//   res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
-//   res.header('Access-Control-Allow-Headers', true);
-//   res.header('Access-Control-Allow-Credentials', true);
-//   res.header(
-//     'Access-Control-Allow-Methods',
-//     'GET, POST, OPTIONS, PUT, PATCH, DELETE'
-//   );
-//   next();
-// });
 
 // app.use(errorHandler);
 app.all('*', (req, res, next) => {

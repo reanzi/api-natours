@@ -1,6 +1,7 @@
 /* eslint-disable */
 
-const signup = (email, password) => {
+const signup = (name, email, password, passwordConfirm) => {
+  console.log(name, email, password, passwordConfirm);
   axios({
     method: 'POST',
     url: 'http://127.0.0.1:3000/api/v1/users/signup',
