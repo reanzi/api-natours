@@ -1,9 +1,9 @@
 /* eslint-disable */
 
 const login = async (email, password) => {
-  console.log(email, password);
+  // console.log(email, password);
   try {
-    const result = await axios({
+    const res = await axios({
       method: 'POST',
       url: 'http://127.0.0.1:3000/api/v1/users/login',
       data: {
@@ -11,9 +11,15 @@ const login = async (email, password) => {
         password
       }
     });
-    console.log(result);
+    if (res.data.status === 'success') {
+      alert('oooophs');
+      window.setTimeout(() => {
+        location.assign('/');
+      }, 1500);
+    }
+    // console.log(res);
   } catch (error) {
-    console.log(error.response.data);
+    alert(error.response.data.message);
   }
 };
 

@@ -20,29 +20,17 @@ const createSendToken = (user, statusCode, res) => {
     httpOnly: true
   };
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
-
-  // res.cookie('jwt', token, cookieOptions);
-  // res.cookies = {
-  //   jwt: token,
-  //   cookieOptions
-  // };
-
-  const cookies = {
-    jwt: token,
-    cookieOptions
-  };
-  // console.log('cookie created successfully');
-  // console.log(res.cookies);
+  res.cookie('jwt', token, cookieOptions);
+  console.log(res);
+  //   console.log('cookie created successfully');
 
   // Remove fields from the response
   user.password = undefined;
   user.passwordResetRequested = undefined;
   user.active = undefined;
-  // console.log(res.cookie());
   res.status(statusCode).json({
     status: 'success',
     token,
-    cookies,
     data: {
       user
     }
@@ -113,6 +101,32 @@ exports.protect = asyncHandler(async (req, res, next) => {
   }
   // 5.) Grant Access and return the user Granted Access
   req.user = currentUser;
+  next();
+});
+
+//Only for rendered pages, no errors
+exports.isLoggedIn = asyncHandler(async (req, res, next) => {
+  // 1.) Getting token and check if it's there
+  if (req.cookies.jwt) {
+    // 2.) Verification of the cookie
+    const payload = await promisify(jwt.verify)(
+      req.cookies.jwt,
+      process.env.JWT_SECRET
+    );
+
+    // 3.) Check if user still exist
+    const currentUser = await User.findById(payload.id);
+    if (!currentUser) {
+      return next();
+    }
+    // 4.) Check if user changed password after the token was issued
+    if (currentUser.changePasswordAfter(payload.iat)) {
+      return next();
+    }
+    // 5.) There is aLogged in user
+    res.locals.user = currentUser;
+    return next();
+  }
   next();
 });
 
