@@ -1,16 +1,21 @@
 /* eslint-disable */
 
 const signup = (name, email, password, passwordConfirm) => {
-  console.log(name, email, password, passwordConfirm);
-  axios({
+  fetch('http://localhost:3000/api/v1/users/signup', {
     method: 'POST',
-    url: 'http://127.0.0.1:3000/api/v1/users/signup',
-    data: {
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    // Credentials: 'include',
+    body: JSON.stringify({
       name,
       email,
       password,
       passwordConfirm
-    }
+    })
+  }).then(res => {
+    console.log(res);
   });
 };
 

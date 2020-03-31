@@ -30,8 +30,8 @@ app.set('views', path.join(__dirname, 'views')); // views directory
 // Serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(cors());
-app.options('*', cors());
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
+// app.options('*', cors());
 
 // Set Security HTTP headers
 app.use(helmet());

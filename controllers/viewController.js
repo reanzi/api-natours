@@ -30,7 +30,6 @@ exports.getTour = asyncHandler(async (req, res, next) => {
 });
 
 exports.getLoginForm = (req, res) => {
-  // res.cookie('server', 'ccccccckiiiiiiieeeessss');
   res.status(200).render('login', {
     title: 'Log into your account'
   });

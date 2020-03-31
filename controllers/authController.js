@@ -19,17 +19,13 @@ const createSendToken = (user, statusCode, res) => {
     )
     // httpOnly: true
   };
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
-  res.cookie('jwt', token, cookieOptions);
-  // console.log(res);
-
   // Remove fields from the response
   user.password = undefined;
   user.passwordResetRequested = undefined;
   user.active = undefined;
-  // console.log('cookie created successfully');
 
   // res.cookie('from', token, cookieOptions);
+  res.cookie('jwt', token, cookieOptions);
   res.status(statusCode).json({
     status: 'success',
 
