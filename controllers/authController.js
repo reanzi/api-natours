@@ -68,7 +68,7 @@ exports.login = asyncHandler(async (req, res, next) => {
 
 exports.logout = (req, res) => {
   res.cookie('jwt', 'loggedout', {
-    expires: new Date(Date.now() + 10 * 1000),
+    expires: new Date(Date.now() + 1 * 1000),
     httpOnly: true
   });
 
@@ -107,6 +107,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
   }
   // 5.) Grant Access and return the user Granted Access
   req.user = currentUser;
+  res.locals.user = currentUser;
   next();
 });
 
