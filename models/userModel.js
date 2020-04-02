@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    default: 'default_profile.jpg'
+    default: 'default.jpg'
   },
   password: {
     type: String,
@@ -95,6 +95,7 @@ userSchema.methods.correctPassword = async function(
 userSchema.methods.resetRequested = async function() {
   return this.passwordResetRequested;
 };
+
 userSchema.methods.changePasswordAfter = function(JWTTimestamp) {
   if (this.passwordChangedAt) {
     //change date into time(seconds)

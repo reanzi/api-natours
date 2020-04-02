@@ -19,11 +19,13 @@ const createSendToken = (user, statusCode, res) => {
     ),
     httpOnly: true
   };
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
-  res.cookie('jwt', token, cookieOptions);
+  // Remove fields from the response
   user.password = undefined;
   user.passwordResetRequested = undefined;
   user.active = undefined;
+
+  // res.cookie('from', token, cookieOptions);
+  res.cookie('jwt', token, cookieOptions);
   res.status(statusCode).json({
     status: 'success',
     token,
@@ -48,6 +50,9 @@ exports.login = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email }).select(
     '+password +passwordResetRequested'
   );
+  if (!user || !(await user.correctPassword(password, user.password))) {
+    return next(new ErrorResponse('Incorect email or password', 401));
+  }
   // const correct = await user.correctPassword(password, user.password);
   if (await user.resetRequested())
     return next(
@@ -56,13 +61,19 @@ exports.login = asyncHandler(async (req, res, next) => {
         400
       )
     );
-  if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(new ErrorResponse('Incorect email or password', 401));
-  }
+
   // .3) if everything is ok, send token to client
   createSendToken(user, 200, res);
 });
 
+exports.logout = (req, res) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true
+  });
+
+  res.status(200).json({ status: 'success' });
+};
 exports.protect = asyncHandler(async (req, res, next) => {
   // 1.) Getting token and check if it's there
   let token;
@@ -71,6 +82,8 @@ exports.protect = asyncHandler(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1]; // Extract token
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
   if (!token) {
     return next(new ErrorResponse('You are not logged in, please login)', 401));
@@ -96,6 +109,36 @@ exports.protect = asyncHandler(async (req, res, next) => {
   req.user = currentUser;
   next();
 });
+
+//Only for rendered pages, no errors
+exports.isLoggedIn = async (req, res, next) => {
+  // 1.) Getting token and check if it's there
+  if (req.cookies.jwt) {
+    try {
+      // 2.) Verification of the cookie
+      const payload = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET
+      );
+
+      // 3.) Check if user still exist
+      const currentUser = await User.findById(payload.id);
+      if (!currentUser) {
+        return next();
+      }
+      // 4.) Check if user changed password after the token was issued
+      if (currentUser.changePasswordAfter(payload.iat)) {
+        return next();
+      }
+      // 5.) There is aLogged in user
+      res.locals.user = currentUser;
+      return next();
+    } catch (err) {
+      return next();
+    }
+  }
+  next();
+};
 
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
