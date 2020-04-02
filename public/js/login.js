@@ -1,5 +1,18 @@
 /* eslint-disable */
 
+const hideAlert = () => {
+  const el = document.querySelector('.alert');
+  if (el) el.parentElement.removeChild(el);
+};
+
+// type is 'success' or 'error'
+const showAlert = (type, msg) => {
+  hideAlert();
+  const markup = `<div class="alert alert--${type}">${msg}</div>`;
+  document.querySelector('body').insertAdjacentHTML('afterbegin', markup);
+  window.setTimeout(hideAlert, 5000);
+};
+
 const login = async (email, password) => {
   // console.log(email, password);
   try {
@@ -16,40 +29,25 @@ const login = async (email, password) => {
         password
         // passwordConfirm
       })
-    }).then(res => {
-      if (res.status === 200) {
-        alert('oooophs');
-        window.setTimeout(() => {
-          location.assign('/');
-        }, 1500);
-      }
-      console.log(res);
-    });
+    })
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === 'success') {
+          showAlert('success', 'Logged in successfull, redirecting...');
+          window.setTimeout(() => {
+            location.assign('/');
+          }, 1500);
+        }
+        if (res.status === 'fail') {
+          showAlert('error', res.message);
+        }
+        // console.log(res);
+      });
 
     // console.log(result);
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    console.log(err);
   }
-
-  // try {
-  //   const res = await axios({
-  //     method: 'POST',
-  //     url: 'http://127.0.0.1:3000/api/v1/users/login',
-  //     data: {
-  //       email,
-  //       password
-  //     }
-  //   });
-  //   if (res.data.status === 'success') {
-  //     alert('oooophs');
-  //     window.setTimeout(() => {
-  //       location.assign('/');
-  //     }, 1500);
-  //   }
-  //   // console.log(res);
-  // } catch (error) {
-  //   alert(error.response.data.message);
-  // }
 };
 
 document.querySelector('.form').addEventListener('submit', e => {

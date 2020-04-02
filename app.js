@@ -90,6 +90,9 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 
+// app.use(globalError);
+app.use(errorHandler);
+
 // app.use(errorHandler);
 app.all('*', (req, res, next) => {
   next(
@@ -99,8 +102,5 @@ app.all('*', (req, res, next) => {
     )
   );
 });
-
-// app.use(globalError);
-app.use(errorHandler);
 
 module.exports = app;

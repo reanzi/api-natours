@@ -1,5 +1,6 @@
 const Tour = require('./../models/tourModel');
 const asyncHandler = require('./../middleware/asyncHandler');
+const ErrorResponse = require('./../utils/ErrorResponse');
 
 exports.getOverview = asyncHandler(async (req, res, next) => {
   // 1) Get tour data from collection
@@ -19,6 +20,10 @@ exports.getTour = asyncHandler(async (req, res, next) => {
     path: 'reviews',
     fields: 'review rating user'
   });
+
+  if (!tour) {
+    return next(new ErrorResponse('There is no tour wiht that name', 404));
+  }
   //   console.log(tour);
   // 2) Build the template
 
