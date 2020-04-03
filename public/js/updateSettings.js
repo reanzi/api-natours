@@ -41,45 +41,64 @@ const showAlert = (type, msg) => {
 // const saveSetting = document.querySelector('.form');
 // if (saveSetting) saveSetting.addEventListener('submit', updateSettings);
 
-const updateData = (name, email) => {
+const updateData = async (data, type) => {
   try {
-    fetch('http://localhost:3000/api/v1/users/updateMe', {
+    const url =
+      type === 'password'
+        ? 'http://localhost:3000/api/v1/users/password_update'
+        : 'http://localhost:3000/api/v1/users/updateMe';
+    await fetch(url, {
       method: 'PATCH',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json'
       },
       // Credentials: 'include',
-      body: JSON.stringify({
-        name,
-        email
-        // password
-        // // passwordConfirm
-      })
+      body: JSON.stringify(data)
     })
       .then(res => res.json())
       .then(res => {
-        console.log(res);
+        // console.log(res);
         if (res.status === 'success') {
-          showAlert('success', ` updated successfully!`); //${type.toUpperCase()}
+          showAlert('success', ` ${type.toUpperCase()} updated successfully!`);
         }
         if (res.status === 'fail') {
-          showAlert('error', `${res.message}`); //${type.toUpperCase()}
+          showAlert('error', `${res.message}`);
         }
       });
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     showAlert('error', err);
   }
 };
 
-const saveSetting = document.querySelector('.form-user-data');
-if (saveSetting) {
-  saveSetting.addEventListener('submit', e => {
+const userDataSetting = document.querySelector('.form-user-data');
+if (userDataSetting) {
+  userDataSetting.addEventListener('submit', e => {
     e.preventDefault();
     // get the values
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
-    updateData(name, email);
+    updateData({ name, email }, 'data');
+  });
+}
+const userPasswordSettings = document.querySelector('.form-user-settings');
+if (userPasswordSettings) {
+  userPasswordSettings.addEventListener('submit', async e => {
+    e.preventDefault();
+    document.querySelector('.btn--save-password').textContent = 'Updating...';
+    const passwordCurrent = document.getElementById('password-current').value;
+    const password = document.getElementById('password').value;
+    const passwordConfirm = document.getElementById('password-confirm').value;
+    await updateData(
+      { passwordCurrent, password, passwordConfirm },
+      'password'
+    );
+
+    document.querySelector('.btn--save-password').textContent =
+      'Save passwords';
+    document.getElementById('password-current').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('password-confirm').value = '';
   });
 }
