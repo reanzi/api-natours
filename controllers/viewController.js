@@ -1,6 +1,7 @@
 const Tour = require('./../models/tourModel');
 const asyncHandler = require('./../middleware/asyncHandler');
 const ErrorResponse = require('./../utils/ErrorResponse');
+const User = require('./../models/userModel');
 
 exports.getOverview = asyncHandler(async (req, res, next) => {
   // 1) Get tour data from collection
@@ -44,3 +45,27 @@ exports.getSignupForm = (req, res) => {
     title: 'Create your account'
   });
 };
+exports.getAccount = (req, res) => {
+  res.status(200).render('account', {
+    title: 'User Account Page'
+  });
+};
+
+exports.updateUserData = asyncHandler(async (req, res) => {
+  console.log('UPDATING', req.body);
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user.id,
+    {
+      name: req.body.name,
+      email: req.body.email
+    },
+    {
+      new: true,
+      runValidators: true
+    }
+  );
+  res.status(200).render('account', {
+    title: 'Your Account Page',
+    user: updatedUser //passing new user
+  });
+});

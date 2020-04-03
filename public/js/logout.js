@@ -13,8 +13,10 @@ const logout = () => {
     })
       .then(res => res.json())
       .then(res => {
-        console.log(res);
-        if (res.status === 'success') location.reload(true);
+        if (res.status === 'success') {
+          location.assign('/');
+          //   location.reload(true);
+        }
       });
   } catch (error) {
     console.log('Something went wrong: try again later');
