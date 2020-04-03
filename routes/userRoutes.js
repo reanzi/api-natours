@@ -1,5 +1,7 @@
 const express = require('express');
 
+const multer = require('multer');
+
 const router = express.Router();
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
@@ -18,7 +20,11 @@ router.use(authController.protect); // protect all routes which follows after th
 // Routes for the current User
 router.patch('/password_update', authController.updatePassword);
 router.get('/me', userController.getMe, userController.getUser);
-router.patch('/updateMe', userController.updateMe);
+router.patch(
+  '/updateMe',
+  userController.uploadUserPhoto,
+  userController.updateMe
+);
 router.delete('/deleteMe', userController.deleteMe);
 
 // Routes to work with the users already in the system; Admin's Routes
