@@ -49,6 +49,7 @@ exports.getOne = (Model, popOptions) =>
   });
 exports.updateOne = Model =>
   asyncHandler(async (req, res, next) => {
+    console.log(req.body);
     const { id } = req.params;
     const doc = await Model.findByIdAndUpdate(id, req.body, {
       new: true,
