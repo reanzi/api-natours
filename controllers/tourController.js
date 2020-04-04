@@ -1,4 +1,7 @@
 // const APIFeatures = require('./../utils/apiFeatures');
+const multer = require('multer');
+const sharp = require('sharp');
+
 const ErrorResponse = require('../utils/ErrorResponse');
 const asyncHandler = require('./../middleware/asyncHandler');
 const factory = require('./handlerFactory');
@@ -6,6 +9,65 @@ const factory = require('./handlerFactory');
 const Tour = require('./../models/tourModel');
 // const fs = require('fs');
 
+const multerStorage = multer.memoryStorage();
+
+const multerFilter = (req, file, cb) => {
+  // console.log(req.files);
+  // console.log(file);
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(
+      new ErrorResponse('Not an image! Please upload only images.', 400),
+      false
+    );
+  }
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter
+});
+
+exports.uploadTourImages = upload.fields([
+  { name: 'imageCover', maxCount: 1 },
+  { name: 'images', maxCount: 3 }
+]);
+
+exports.resizeTourImages = asyncHandler(async (req, res, next) => {
+  // console.log(req.files);
+  if (!req.files.imageCover || !req.files.images) return next();
+
+  // 1.) Cover Image
+  req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
+  await sharp(req.files.imageCover[0].buffer)
+    .resize(2000, 1333)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/tours/${req.body.imageCover}`);
+
+  // 1.) Images
+  req.body.images = []; // Create the array to hold the images
+  await Promise.all(
+    // await all await in the enclosed async
+    req.files.images.map(async (file, index) => {
+      const filename = `tour-${req.params.id}-${Date.now()}-${index + 1}.jpeg`;
+
+      await sharp(file.buffer)
+        .resize(2000, 1333)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`public/img/tours/${filename}`);
+
+      req.body.images.push(filename);
+    })
+  );
+
+  console.log(req.body);
+  next();
+});
+// upload.single('fieldName'); // uploading single image => req.file
+// upload.array('arrayName', maxCount); // uploading multiple images into a single array => req.files
 /**
  * @param {*} TOURS RESOURCE
  */
