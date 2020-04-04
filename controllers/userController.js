@@ -101,6 +101,7 @@ exports.deleteUser = factory.deleteOne(User);
 
 exports.resizeUserImage = (req, res, next) => {
   if (!req.file) return next();
+  // console.log('resize Called');
   req.file.finame = `user-${req.user.id}-${Date.now()}.jpeg`;
   // image processing
   sharp(req.file.buffer)
