@@ -1,4 +1,5 @@
 const Tour = require('./../models/tourModel');
+const Booking = require('./../models/bookingModel');
 const asyncHandler = require('./../middleware/asyncHandler');
 const ErrorResponse = require('./../utils/ErrorResponse');
 const User = require('./../models/userModel');
@@ -51,8 +52,24 @@ exports.getAccount = (req, res) => {
   });
 };
 
+exports.getMyTours = asyncHandler(async (req, res, next) => {
+  // 1. Find all bookings beloning to a user
+
+  const bookings = await Booking.find({ user: req.user.id });
+
+  // 2. Find tours with the returned ids
+  const tourIDS = bookings.map(el => el.tour); // Create a array of tour ids
+  // Getting the tours corresponding to the ids
+  const tours = await Tour.find({ _id: { $in: tourIDS } });
+
+  res.status(200).render('overview', {
+    title: 'My Tours',
+    tours
+  });
+});
+
 exports.updateUserData = asyncHandler(async (req, res) => {
-  console.log('UPDATING', req.body);
+  // console.log('UPDATING', req.body);
   const updatedUser = await User.findByIdAndUpdate(
     req.user.id,
     {
