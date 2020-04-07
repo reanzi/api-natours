@@ -3,6 +3,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const asyncHandler = require('../middleware/asyncHandler');
 const Tour = require('../models/tourModel');
 const Booking = require('../models/bookingModel');
+const factory = require('./handlerFactory');
 
 exports.getCheckoutSession = asyncHandler(async (req, res, next) => {
   // 1. Get the current booked tour
@@ -44,3 +45,10 @@ exports.createBookingCheckout = asyncHandler(async (req, res, next) => {
 
   res.redirect(req.originalUrl.split('?')[0]);
 });
+
+exports.createBooking = factory.createOne(Booking);
+exports.getBooking = factory.getOne(Booking);
+exports.getAllBookings = factory.getAll(Booking);
+exports.updateBooking = factory.updateOne(Booking);
+exports.createBooking = factory.createOne(Booking);
+exports.deleteBooking = factory.deleteOne(Booking);
