@@ -31,16 +31,17 @@ if (loginForm)
   });
 
 if (logOutBtn) logOutBtn.addEventListener('click', logout);
+if (signupBtn) {
+  signupBtn.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const passwordConfirm = document.getElementById('passwordConfirm').value;
 
-signupBtn.addEventListener('submit', e => {
-  e.preventDefault();
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  const passwordConfirm = document.getElementById('passwordConfirm').value;
-
-  signup(name, email, password, passwordConfirm);
-});
+    signup(name, email, password, passwordConfirm);
+  });
+}
 
 if (userDataForm)
   userDataForm.addEventListener('submit', e => {
