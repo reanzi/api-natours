@@ -3,9 +3,9 @@ include _reviewCard
 block append head
   link(href='https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css' rel='stylesheet')
   script( src='https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.js' defer)
-  script( src='https://js.stripe.com/v3/' defer)
-  script(src='/js/mapbox.js' defer)
-  script(src='/js/stripe.js' defer)
+  script( src='https://js.stripe.com/v3/')
+  //- script(src='/js/mapbox.js' defer)
+  //- script(src='/js/stripe.js' defer)
 
 mixin overviewBox(label, text, iconName)
   .overview-box__detail

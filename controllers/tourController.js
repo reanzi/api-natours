@@ -63,7 +63,7 @@ exports.resizeTourImages = asyncHandler(async (req, res, next) => {
     })
   );
 
-  console.log(req.body);
+  // console.log(req.body);
   next();
 });
 // upload.single('fieldName'); // uploading single image => req.file
