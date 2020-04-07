@@ -16,7 +16,7 @@ const showAlert = (type, msg) => {
 const login = async (email, password) => {
   // console.log(email, password);
   try {
-    const result = fetch('http://localhost:3000/api/v1/users/login', {
+    const result = fetch('/api/v1/users/login', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -46,7 +46,6 @@ const login = async (email, password) => {
 
     // console.log(result);
   } catch (err) {
-    console.log(err);
     showAlert('error', res.message);
   }
 };

@@ -21,24 +21,21 @@ const updateData = async (data, type) => {
     // console.log(data);
     let response;
     if (type === 'data') {
-      response = await fetch('http://localhost:3000/api/v1/users/updateMe', {
+      response = await fetch('/api/v1/users/updateMe', {
         method: 'PATCH',
         body: new FormData(data)
       });
     }
     if (type === 'password') {
-      response = await fetch(
-        'http://localhost:3000/api/v1/users/password_update',
-        {
-          method: 'PATCH',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          Credentials: 'include',
-          body: JSON.stringify(data)
-        }
-      );
+      response = await fetch('/api/v1/users/password_update', {
+        method: 'PATCH',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        Credentials: 'include',
+        body: JSON.stringify(data)
+      });
     }
 
     let res = await response.json();

@@ -3,7 +3,7 @@ const logOutBtn = document.querySelector('.nav__el--logout');
 
 const logout = () => {
   try {
-    fetch('http://localhost:3000/api/v1/users/logout', {
+    fetch('/api/v1/users/logout', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -19,7 +19,7 @@ const logout = () => {
         }
       });
   } catch (error) {
-    console.log('Something went wrong: try again later');
+    // console.log('Something went wrong: try again later');
   }
 };
 

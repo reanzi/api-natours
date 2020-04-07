@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const compress = require('compression');
 
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -77,6 +78,7 @@ app.use(
   })
 );
 
+app.use(compress());
 // Test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();

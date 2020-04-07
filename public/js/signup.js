@@ -13,7 +13,7 @@ const showAlert = (type, msg) => {
 };
 
 const signup = (name, email, password, passwordConfirm) => {
-  fetch('http://localhost:3000/api/v1/users/signup', {
+  fetch('/api/v1/users/signup', {
     method: 'POST',
     headers: {
       Accept: 'application/json',
