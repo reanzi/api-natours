@@ -47,6 +47,7 @@ const login = async (email, password) => {
     // console.log(result);
   } catch (err) {
     console.log(err);
+    showAlert('error', res.message);
   }
 };
 
